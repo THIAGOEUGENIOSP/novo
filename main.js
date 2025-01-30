@@ -1,7 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
-import Chart from 'chart.js/auto';
-import { jsPDF } from 'jspdf';
-
+import { createClient } from "@supabase/supabase-js";
+import Chart from "chart.js/auto";
+import { jsPDF } from "jspdf";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -14,63 +13,65 @@ let expensesChart = null;
 
 // Função para formatar valores monetários em Real brasileiro
 function formatCurrency(value) {
-  return value.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-  });
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
 }
 
 // Navigation
 window.showSection = (sectionId) => {
-  document.querySelectorAll('.section').forEach(section => {
-    section.classList.remove('active');
+  document.querySelectorAll(".section").forEach((section) => {
+    section.classList.remove("active");
   });
-  document.getElementById(sectionId).classList.add('active');
-  
-  if (sectionId === 'overview') {
+  document.getElementById(sectionId).classList.add("active");
+
+  if (sectionId === "overview") {
     updateDashboard();
   }
 };
 
 // Participants Management
-document.getElementById('participantForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const formData = {
-    name: document.getElementById('name').value,
-    type: document.getElementById('type').value,
-    children: parseInt(document.getElementById('children').value)
-  };
+document
+  .getElementById("participantForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const { data, error } = await supabase
-    .from('participants')
-    .insert([formData]);
+    const formData = {
+      name: document.getElementById("name").value,
+      type: document.getElementById("type").value,
+      children: parseInt(document.getElementById("children").value),
+    };
 
-  if (error) {
-    alert('Erro ao adicionar participante: ' + error.message);
-    return;
-  }
+    const { data, error } = await supabase
+      .from("participants")
+      .insert([formData]);
 
-  e.target.reset();
-  loadParticipants();
-  updateDashboard();
-});
+    if (error) {
+      alert("Erro ao adicionar participante: " + error.message);
+      return;
+    }
+
+    e.target.reset();
+    loadParticipants();
+    updateDashboard();
+  });
 
 async function loadParticipants() {
   const { data: participants, error } = await supabase
-    .from('participants')
-    .select('*');
+    .from("participants")
+    .select("*");
 
   if (error) {
-    alert('Erro ao carregar participantes: ' + error.message);
+    alert("Erro ao carregar participantes: " + error.message);
     return;
   }
 
-  const tbody = document.querySelector('#participantsTable tbody');
-  tbody.innerHTML = '';
+  const tbody = document.querySelector("#participantsTable tbody");
+  tbody.innerHTML = "";
 
-  participants.forEach(participant => {
-    const row = document.createElement('tr');
+  participants.forEach((participant) => {
+    const row = document.createElement("tr");
     row.innerHTML = `
       <td>${participant.name}</td>
       <td>${participant.type}</td>
@@ -84,13 +85,10 @@ async function loadParticipants() {
 }
 
 window.deleteParticipant = async (id) => {
-  const { error } = await supabase
-    .from('participants')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from("participants").delete().eq("id", id);
 
   if (error) {
-    alert('Erro ao excluir participante: ' + error.message);
+    alert("Erro ao excluir participante: " + error.message);
     return;
   }
 
@@ -99,22 +97,25 @@ window.deleteParticipant = async (id) => {
 };
 
 // Expenses Management
-document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+document.getElementById("expenseForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  
+
   const formData = {
-    description: document.getElementById('description').value,
-    amount: parseFloat(document.getElementById('amount').value),
-    category: document.getElementById('category').value,
-    date: new Date().toISOString()
+    description: document.getElementById("description").value,
+    amount: parseFloat(
+      document
+        .getElementById("amount")
+        .value.replace(/\./g, "")
+        .replace(",", ".")
+    ),
+    category: document.getElementById("category").value,
+    date: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
-    .from('expenses')
-    .insert([formData]);
+  const { data, error } = await supabase.from("expenses").insert([formData]);
 
   if (error) {
-    alert('Erro ao adicionar despesa: ' + error.message);
+    alert("Erro ao adicionar despesa: " + error.message);
     return;
   }
 
@@ -125,41 +126,42 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
 
 async function loadExpenses() {
   const { data: expenses, error } = await supabase
-    .from('expenses')
-    .select('*')
-    .order('date', { ascending: false });
+    .from("expenses")
+    .select("*")
+    .order("date", { ascending: false });
 
   if (error) {
-    alert('Erro ao carregar despesas: ' + error.message);
+    alert("Erro ao carregar despesas: " + error.message);
     return;
   }
 
-  const tbody = document.querySelector('#expensesTable tbody');
-  tbody.innerHTML = '';
+  const tbody = document.querySelector("#expensesTable tbody");
+  tbody.innerHTML = "";
 
-  expenses.forEach(expense => {
-    const row = document.createElement('tr');
+  expenses.forEach((expense) => {
+    const row = document.createElement("tr");
     row.innerHTML = `
       <td>${expense.description}</td>
       <td>${formatCurrency(expense.amount)}</td>
       <td>${expense.category}</td>
       <td>${new Date(expense.date).toLocaleDateString()}</td>
       <td>
-        <button onclick="deleteExpense('${expense.id}')" class="btn-secondary">Excluir</button>
+        <button onclick="deleteExpense('${
+          expense.id
+        }')" class="btn-secondary">Excluir</button>
       </td>
     `;
     tbody.appendChild(row);
   });
 }
 
+
+
 window.deleteExpense = async (id) => {
-  const { error } = await supabase
-    .from('expenses')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from("expenses").delete().eq("id", id);
 
   if (error) {
-    alert('Erro ao excluir despesa: ' + error.message);
+    alert("Erro ao excluir despesa: " + error.message);
     return;
   }
 
@@ -167,10 +169,48 @@ window.deleteExpense = async (id) => {
   updateDashboard();
 };
 
+function parseInputValue(value) {
+  value = value.replace(/\D/g, ""); // Remove todos os caracteres não numéricos
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value / 100);
+}
+
+async function addExpense(description, amount, category, date) {
+  const { data, error } = await supabase
+    .from("expenses")
+    .insert([{ description, amount, category, date }]);
+
+  if (error) {
+    alert("Erro ao adicionar despesa: " + error.message);
+    return;
+  }
+
+  loadExpenses();
+  updateDashboard();
+}
+
+
+// Exemplo de uso da função parseInputValue
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("amount").addEventListener("input", function (e) {
+    e.target.value = parseInputValue(e.target.value);
+  });
+
+
+
+  loadParticipants();
+  loadExpenses();
+  updateDashboard();
+});
+
 // Dashboard and Reports
 async function updateDashboard() {
-  const { data: participants } = await supabase.from('participants').select('*');
-  const { data: expenses } = await supabase.from('expenses').select('*');
+  const { data: participants } = await supabase
+    .from("participants")
+    .select("*");
+  const { data: expenses } = await supabase.from("expenses").select("*");
 
   if (!participants || !expenses) {
     console.error("Erro ao carregar dados do Supabase.");
@@ -178,24 +218,29 @@ async function updateDashboard() {
   }
 
   // Calcular total de adultos (excluindo crianças)
-  const totalAdults = participants.reduce((acc, p) => 
-    acc + (p.type === 'casal' ? 2 : 1),  0);
+  const totalAdults = participants.reduce(
+    (acc, p) => acc + (p.type === "casal" ? 2 : 1),
+    0
+  );
 
   const totalExpense = expenses.reduce((acc, e) => acc + e.amount, 0);
   const costPerPerson = totalAdults > 0 ? totalExpense / totalAdults : 0;
 
   // Contar casais e calcular valor por casal
-  const totalCouples = participants.filter(p => p.type === 'casal').length;
+  const totalCouples = participants.filter((p) => p.type === "casal").length;
   const amountPerCouple = totalCouples > 0 ? costPerPerson * 2 : 0;
 
   // Atualizar dashboard
-  document.getElementById('totalParticipants').textContent = `${totalAdults} adultos`;
-  document.getElementById('totalExpense').textContent = formatCurrency(totalExpense);
-document.getElementById('costPerPerson').textContent = formatCurrency(costPerPerson);
-
+  document.getElementById(
+    "totalParticipants"
+  ).textContent = `${totalAdults} adultos`;
+  document.getElementById("totalExpense").textContent =
+    formatCurrency(totalExpense);
+  document.getElementById("costPerPerson").textContent =
+    formatCurrency(costPerPerson);
 
   // Verificar se o elemento "amountPerCouple" existe antes de atualizar
-  const coupleAmountElement = document.getElementById('amountPerCouple');
+  const coupleAmountElement = document.getElementById("amountPerCouple");
   if (coupleAmountElement) {
     coupleAmountElement.textContent = formatCurrency(amountPerCouple);
   }
@@ -205,10 +250,9 @@ document.getElementById('costPerPerson').textContent = formatCurrency(costPerPer
   updateSummaryTable(expenses);
 }
 
-
 function updateExpensesChart(expenses) {
-  const ctx = document.getElementById('expensesChart').getContext('2d');
-  
+  const ctx = document.getElementById("expensesChart").getContext("2d");
+
   const expensesByCategory = expenses.reduce((acc, expense) => {
     acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
     return acc;
@@ -219,30 +263,30 @@ function updateExpensesChart(expenses) {
   }
 
   expensesChart = new Chart(ctx, {
-    type: 'pie',
+    type: "pie",
     data: {
       labels: Object.keys(expensesByCategory),
-      datasets: [{
-        data: Object.values(expensesByCategory).map(value => parseFloat(value.toFixed(2))),
-        backgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56'
-        ]
-      }]
+      datasets: [
+        {
+          data: Object.values(expensesByCategory).map((value) =>
+            parseFloat(value.toFixed(2))
+          ),
+          backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+        },
+      ],
     },
     options: {
       responsive: true,
       plugins: {
         legend: {
-          position: 'top',
+          position: "top",
         },
         title: {
           display: true,
-          text: 'Distribuição de Despesas por Categoria'
-        }
-      }
-    }
+          text: "Distribuição de Despesas por Categoria",
+        },
+      },
+    },
   });
 }
 
@@ -253,12 +297,12 @@ function updateSummaryTable(expenses) {
     return acc;
   }, {});
 
-  const tbody = document.querySelector('#summaryTable tbody');
-  tbody.innerHTML = '';
+  const tbody = document.querySelector("#summaryTable tbody");
+  tbody.innerHTML = "";
 
   Object.entries(expensesByCategory).forEach(([category, amount]) => {
-    const percentage = (amount / totalExpense * 100).toFixed(2);
-    const row = document.createElement('tr');
+    const percentage = ((amount / totalExpense) * 100).toFixed(2);
+    const row = document.createElement("tr");
     row.innerHTML = `
       <td>${category}</td>
       <td>${formatCurrency(amount)}</td>
@@ -270,63 +314,231 @@ function updateSummaryTable(expenses) {
 
 // Export functions
 
-
 window.exportToPDF = async () => {
-  const { data: expenses } = await supabase.from('expenses').select('*');
-  
+  const { data: expenses } = await supabase.from("expenses").select("*");
+
   if (!expenses) {
-    alert('Erro ao carregar despesas');
+    alert("Erro ao carregar despesas");
     return;
   }
 
   const doc = new jsPDF();
-  doc.text('Relatório de Despesas', 10, 10);
+  doc.text("Relatório de Despesas", 10, 10);
 
   let y = 20;
-  expenses.forEach(expense => {
-    doc.text(`${expense.description} - ${formatCurrency(expense.amount)} - ${expense.category} - ${new Date(expense.date).toLocaleDateString()}`, 10, y);
+  expenses.forEach((expense) => {
+    doc.text(
+      `${expense.description} - ${formatCurrency(expense.amount)} - ${
+        expense.category
+      } - ${new Date(expense.date).toLocaleDateString()}`,
+      10,
+      y
+    );
     y += 10;
   });
 
-  doc.save('despesas.pdf');
+  doc.save("despesas.pdf");
 };
 
-
-
 window.exportToCSV = async () => {
-  const { data: expenses } = await supabase.from('expenses').select('*');
-  
+  const { data: expenses } = await supabase.from("expenses").select("*");
+
   if (!expenses) {
-    alert('Erro ao carregar despesas');
+    alert("Erro ao carregar despesas");
     return;
   }
 
-  const headers = ['Descrição', 'Valor', 'Categoria', 'Data'];
-  const rows = expenses.map(expense => [
+  const headers = ["Descrição", "Valor", "Categoria", "Data"];
+  const rows = expenses.map((expense) => [
     expense.description,
-    expense.amount,
+    formatCurrency(expense.amount),
     expense.category,
-    new Date(expense.date).toLocaleDateString()
+    new Date(expense.date).toLocaleDateString(),
   ]);
 
   const csvContent = [
-    headers.join(','),
-    ...rows.map(row => row.join(','))
-  ].join('\n');
+    headers.join(","),
+    ...rows.map((row) => row.join(",")),
+  ].join("\n");
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', 'despesas.csv');
+  link.setAttribute("href", url);
+  link.setAttribute("download", "despesas.csv");
   link.click();
 };
 
 
+document
+  .getElementById("shoppingForm")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-// Initial load
-document.addEventListener('DOMContentLoaded', () => {
-  loadParticipants();
-  loadExpenses();
-  updateDashboard();
+    const itemName = document.getElementById("itemName").value.trim();
+    let itemCategory = document.getElementById("itemCategory").value;
+
+    // Verificar se o nome do item está preenchido
+    if (!itemName) {
+      alert("Por favor, insira o nome do item.");
+      return;
+    }
+
+    // Verificar se a categoria é válida, se não, atribuir uma categoria padrão
+    const validCategories = ["alimentos", "itens_gerais"]; // Defina suas categorias válidas aqui
+    if (!itemCategory || !validCategories.includes(itemCategory)) {
+      console.log(
+        "Categoria inválida ou não fornecida. Usando 'Categoria padrão'."
+      );
+      itemCategory = "itens_gerais"; // Substituir por uma categoria válida
+    }
+
+    // Verificar o valor da categoria antes de enviar para o banco de dados (opcional para depuração)
+    console.log("Categoria do item:", itemCategory);
+
+    // Chamar a função para adicionar o item
+    await addShoppingItem(itemName, itemCategory);
+    e.target.reset();
+  });
+
+  // Função para exibir a categoria formatada na interface
+function formatCategory(category) {
+  const categoryMap = {
+    "itens_gerais": "Itens gerais",
+    "alimentos": "Alimentos"
+  };
+  return categoryMap[category] || category;  // Retorna a categoria formatada ou o valor original
+}
+
+// Função que adiciona o item à tabela e ao banco de dados Supabase
+async function addShoppingItem(name, category) {
+  const { data, error } = await supabase
+    .from("shopping_list")
+    .insert([{ name, category, completed: false }]);
+
+  if (error) {
+    console.error("Erro ao adicionar item:", error.message);
+    alert("Erro ao adicionar item: " + error.message);
+    return;
+  }
+
+  console.log("Item cadastrado com sucesso:", data);
+  loadShoppingList(); // Atualiza a lista após o cadastro
+}
+
+// Função para carregar a lista de compras do Supabase
+async function loadShoppingList() {
+  const { data, error } = await supabase.from("shopping_list").select("*");
+
+  if (error) {
+    console.error("Erro ao carregar itens:", error.message);
+    return;
+  }
+
+  const tbody = document.querySelector("#shoppingTable tbody");
+  tbody.innerHTML = ""; // Limpa a tabela antes de adicionar novos itens
+
+  // Separar os itens por categoria
+  const groupedItems = {
+    alimentos: [],
+    itens_gerais: [],
+  };
+
+  data.forEach((item) => {
+    groupedItems[item.category].push(item);
+  });
+
+  // Criar seções para cada categoria
+  Object.keys(groupedItems).forEach((category) => {
+    if (groupedItems[category].length > 0) {
+      const categoryRow = document.createElement("tr");
+      categoryRow.innerHTML = `
+        <td colspan="4" style="background: #f0f0f0; font-weight: bold; text-align: center;">
+          ${formatCategory(category)}
+        </td>
+      `;
+      tbody.appendChild(categoryRow);
+
+      groupedItems[category].forEach((item) => {
+        const row = document.createElement("tr");
+        row.classList.toggle("purchased", item.completed);
+
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${formatCategory(item.category)}</td>
+          <td>
+            <input type="checkbox" class="mark-purchased" data-id="${
+              item.id
+            }" ${item.completed ? "checked" : ""}>
+          </td>
+          <td>
+            <button class="btn-secondary delete-btn" data-id="${
+              item.id
+            }">Excluir</button>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+      });
+    }
+  });
+
+  attachEventListeners();
+}
+
+// Função para atualizar o status de "comprado" no Supabase
+async function togglePurchased(itemId, isChecked) {
+  const { error } = await supabase
+    .from("shopping_list")
+    .update({ completed: isChecked })
+    .eq("id", itemId);
+
+  if (error) {
+    console.error("Erro ao atualizar item:", error.message);
+    return;
+  }
+
+  loadShoppingList(); // Atualiza a lista visualmente após a mudança
+}
+
+// Adiciona eventos para checkbox e exclusão
+function attachEventListeners() {
+  document.querySelectorAll(".mark-purchased").forEach((checkbox) => {
+    checkbox.addEventListener("change", async (e) => {
+      const itemId = e.target.getAttribute("data-id");
+      await togglePurchased(itemId, e.target.checked);
+    });
+  });
+
+  document.querySelectorAll(".delete-btn").forEach((button) => {
+    button.addEventListener("click", async (e) => {
+      const itemId = e.target.getAttribute("data-id");
+      if (confirm("Tem certeza que deseja excluir este item?")) {
+        await deleteShoppingItem(itemId);
+      }
+    });
+  });
+}
+
+// Exclui um item do Supabase e recarrega a lista
+async function deleteShoppingItem(itemId) {
+  const { error } = await supabase
+    .from("shopping_list")
+    .delete()
+    .eq("id", itemId);
+
+  if (error) {
+    console.error("Erro ao excluir item:", error.message);
+    return;
+  }
+
+  loadShoppingList();
+}
+
+// Carrega a lista de compras ao iniciar a página
+document.addEventListener("DOMContentLoaded", () => {
+  loadShoppingList();
 });
+
+// fim lista de compras
+

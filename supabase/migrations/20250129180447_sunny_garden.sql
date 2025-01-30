@@ -36,7 +36,7 @@ CREATE TABLE expenses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   description text NOT NULL,
   amount numeric NOT NULL CHECK (amount > 0),
-  category text NOT NULL CHECK (category IN ('aluguel', 'comida', 'essenciais')),
+  category text NOT NULL CHECK (category IN ('aluguel', 'compras', 'demaisItens')),
   date timestamptz NOT NULL,
   created_at timestamptz DEFAULT now()
 );

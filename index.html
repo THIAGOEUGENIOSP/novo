@@ -8,12 +8,14 @@
   </head>
   <body>
     <nav class="navbar">
-      <h1>Carnaval 2025 - Controle de Gastos</h1>
+      <h1>🎭 Carnaval 2025 - Controle de Gastos</h1>
       <div class="nav-links">
         <button onclick="showSection('overview')" class="nav-btn">Visão Geral</button>
         <button onclick="showSection('participants')" class="nav-btn">Participantes</button>
         <button onclick="showSection('expenses')" class="nav-btn">Despesas</button>
+        <button onclick="showSection('shopping-list')" class="nav-btn">Lista de Compras</button>
         <button onclick="showSection('reports')" class="nav-btn">Relatórios</button>
+        
       </div>
     </nav>
 
@@ -37,7 +39,7 @@
           <div class="card">
             <h3>Valor por Casal</h3>
             <p id="amountPerCouple">R$ 0,00</p>
-        </div>
+          </div>
         </div>
         <div class="chart-container">
           <canvas id="expensesChart"></canvas>
@@ -91,15 +93,19 @@
           </div>
           <div class="form-group">
             <label for="amount">Valor:</label>
-            <input type="number" id="amount" step="0.01" required>
+            <input type="text" id="amount" required>
           </div>
           <div class="form-group">
             <label for="category">Categoria:</label>
             <select id="category" required>
-              <option value="aluguel">Aluguel</option>
-              <option value="comida">Comida</option>
-              <option value="essenciais">Itens Essenciais</option>
+              <option value="Aluguel">Aluguel</option>
+              <option value="Compras">Compras</option>
+              <option value="Adicional">Adicional</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="date">Data:</label>
+            <input type="date" id="date" required>
           </div>
           <button type="submit" class="btn-primary">Registrar Despesa</button>
         </form>
@@ -112,6 +118,39 @@
                 <th>Valor</th>
                 <th>Categoria</th>
                 <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Lista de Compras -->
+      <section id="shopping-list" class="section">
+        <h2>Lista de Compras</h2>
+        <form id="shoppingForm" class="form">
+          <div class="form-group">
+            <label for="itemName">Nome do Item:</label>
+            <input type="text" id="itemName" required>
+          </div>
+          <div class="form-group">
+            <label for="itemCategory">Categoria:</label>
+            <select id="itemCategory" required>
+              <option value="alimentos">Alimentos</option>
+              <option value="itens-gerais">Itens Gerais</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary">Cadastrar Item</button>
+        </form>
+        <div class="shopping-list-container">
+          <h3>Itens Cadastrados</h3>
+          <table id="shoppingTable">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Comprado</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -143,6 +182,8 @@
           </div>
         </div>
       </section>
+
+      
     </main>
 
     <script type="module" src="/main.js"></script>
