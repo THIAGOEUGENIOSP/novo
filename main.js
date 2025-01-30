@@ -155,8 +155,6 @@ async function loadExpenses() {
   });
 }
 
-
-
 window.deleteExpense = async (id) => {
   const { error } = await supabase.from("expenses").delete().eq("id", id);
 
@@ -191,14 +189,11 @@ async function addExpense(description, amount, category, date) {
   updateDashboard();
 }
 
-
 // Exemplo de uso da função parseInputValue
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("amount").addEventListener("input", function (e) {
     e.target.value = parseInputValue(e.target.value);
   });
-
-
 
   loadParticipants();
   loadExpenses();
@@ -369,13 +364,13 @@ window.exportToCSV = async () => {
   link.click();
 };
 
-
 document
   .getElementById("shoppingForm")
   .addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const itemName = document.getElementById("itemName").value.trim();
+    const quantity = parseFloat(document.getElementById("quantity").value);
     let itemCategory = document.getElementById("itemCategory").value;
 
     // Verificar se o nome do item está preenchido
@@ -393,28 +388,32 @@ document
       itemCategory = "itens_gerais"; // Substituir por uma categoria válida
     }
 
-    // Verificar o valor da categoria antes de enviar para o banco de dados (opcional para depuração)
-    console.log("Categoria do item:", itemCategory);
-
     // Chamar a função para adicionar o item
-    await addShoppingItem(itemName, itemCategory);
+    await addShoppingItem(itemName, itemCategory, quantity);
     e.target.reset();
   });
 
-  // Função para exibir a categoria formatada na interface
+// Função para exibir a categoria formatada na interface
 function formatCategory(category) {
-  const categoryMap = {
-    "itens_gerais": "Itens gerais",
-    "alimentos": "Alimentos"
-  };
-  return categoryMap[category] || category;  // Retorna a categoria formatada ou o valor original
+  switch (category) {
+    case "alimentos":
+      return "Alimentos";
+    case "itens_gerais":
+      return "Itens Gerais";
+    default:
+      return category;
+  }
 }
 
+
+
+
+
 // Função que adiciona o item à tabela e ao banco de dados Supabase
-async function addShoppingItem(name, category) {
+async function addShoppingItem(name, category, quantity) {
   const { data, error } = await supabase
     .from("shopping_list")
-    .insert([{ name, category, completed: false }]);
+    .insert([{ name, category, quantity, completed: false }]);
 
   if (error) {
     console.error("Erro ao adicionar item:", error.message);
@@ -428,10 +427,12 @@ async function addShoppingItem(name, category) {
 
 // Função para carregar a lista de compras do Supabase
 async function loadShoppingList() {
-  const { data, error } = await supabase.from("shopping_list").select("*");
+  const { data: shoppingList, error } = await supabase
+    .from("shopping_list")
+    .select("*");
 
   if (error) {
-    console.error("Erro ao carregar itens:", error.message);
+    alert("Erro ao carregar a lista de compras: " + error.message);
     return;
   }
 
@@ -444,7 +445,7 @@ async function loadShoppingList() {
     itens_gerais: [],
   };
 
-  data.forEach((item) => {
+  shoppingList.forEach((item) => {
     groupedItems[item.category].push(item);
   });
 
@@ -453,7 +454,7 @@ async function loadShoppingList() {
     if (groupedItems[category].length > 0) {
       const categoryRow = document.createElement("tr");
       categoryRow.innerHTML = `
-        <td colspan="4" style="background: #f0f0f0; font-weight: bold; text-align: center;">
+        <td colspan="5" style="background:rgb(199, 193, 209); font-weight: bold; text-align: center;">
           ${formatCategory(category)}
         </td>
       `;
@@ -465,19 +466,20 @@ async function loadShoppingList() {
 
         row.innerHTML = `
           <td>${item.name}</td>
+          <td>${item.quantity ?? 0}</td>
           <td>${formatCategory(item.category)}</td>
-          <td>
-            <input type="checkbox" class="mark-purchased" data-id="${
-              item.id
-            }" ${item.completed ? "checked" : ""}>
-          </td>
+          
           <td>
             <button class="btn-secondary delete-btn" data-id="${
               item.id
             }">Excluir</button>
           </td>
+          <td>
+            <input type="checkbox" class="mark-purchased" data-id="${
+              item.id
+            }" ${item.completed ? "checked" : ""}>
+          </td>
         `;
-
         tbody.appendChild(row);
       });
     }
@@ -488,6 +490,8 @@ async function loadShoppingList() {
 
 // Função para atualizar o status de "comprado" no Supabase
 async function togglePurchased(itemId, isChecked) {
+  console.log("Atualizando item:", itemId, "para", isChecked);
+
   const { error } = await supabase
     .from("shopping_list")
     .update({ completed: isChecked })
@@ -504,36 +508,32 @@ async function togglePurchased(itemId, isChecked) {
 // Adiciona eventos para checkbox e exclusão
 function attachEventListeners() {
   document.querySelectorAll(".mark-purchased").forEach((checkbox) => {
-    checkbox.addEventListener("change", async (e) => {
+    checkbox.addEventListener("change", (e) => {
       const itemId = e.target.getAttribute("data-id");
-      await togglePurchased(itemId, e.target.checked);
+      const isChecked = e.target.checked;
+      togglePurchased(itemId, isChecked);
     });
   });
 
   document.querySelectorAll(".delete-btn").forEach((button) => {
-    button.addEventListener("click", async (e) => {
+    button.addEventListener("click", (e) => {
       const itemId = e.target.getAttribute("data-id");
-      if (confirm("Tem certeza que deseja excluir este item?")) {
-        await deleteShoppingItem(itemId);
-      }
+      deleteShoppingItem(itemId);
     });
   });
 }
 
-// Exclui um item do Supabase e recarrega a lista
-async function deleteShoppingItem(itemId) {
-  const { error } = await supabase
-    .from("shopping_list")
-    .delete()
-    .eq("id", itemId);
+//Função para excluir um item da lista de compras
+window.deleteShoppingItem = async (id) => {
+  const { error } = await supabase.from("shopping_list").delete().eq("id", id);
 
   if (error) {
-    console.error("Erro ao excluir item:", error.message);
+    alert("Erro ao excluir item: " + error.message);
     return;
   }
 
   loadShoppingList();
-}
+};
 
 // Carrega a lista de compras ao iniciar a página
 document.addEventListener("DOMContentLoaded", () => {
@@ -541,4 +541,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // fim lista de compras
-

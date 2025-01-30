@@ -137,7 +137,7 @@ main {
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: #aa9996;;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -213,7 +213,7 @@ th {
 
 .shopping-list-container th, .shopping-list-container td {
   padding: 12px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #ddd;
 }
 
@@ -233,3 +233,14 @@ th {
   margin-left: 5px;
 }
 
+/* Estilos para a tabela de lista de compras */
+#shoppingTable td {
+  vertical-align: middle; /* Alinha o conteúdo verticalmente no meio */
+}
+
+
+
+#shoppingTable .btn-secondary {
+  padding: 5px 10px; /* Ajusta o tamanho do botão */
+  margin-left: 10px; /* Adiciona um espaço entre o checkbox e o botão */
+}

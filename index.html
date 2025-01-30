@@ -135,6 +135,10 @@
             <input type="text" id="itemName" required>
           </div>
           <div class="form-group">
+            <label for="quantity">Quantidade/Kg:</label>
+            <input type="number" id="quantity" min="0" value="0">
+          </div>
+          <div class="form-group">
             <label for="itemCategory">Categoria:</label>
             <select id="itemCategory" required>
               <option value="alimentos">Alimentos</option>
@@ -149,9 +153,11 @@
             <thead>
               <tr>
                 <th>Nome</th>
+                <th>Quant/Kg</th>
                 <th>Categoria</th>
-                <th>Comprado</th>
                 <th>Ações</th>
+                <th>Comprado</th>
+                
               </tr>
             </thead>
             <tbody></tbody>
