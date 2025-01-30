@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Controle de Gastos - Carnaval 2025</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <h1>Carnaval 2025 - Controle de Gastos</h1>
+      <div class="nav-links">
+        <button onclick="showSection('overview')" class="nav-btn">Visão Geral</button>
+        <button onclick="showSection('participants')" class="nav-btn">Participantes</button>
+        <button onclick="showSection('expenses')" class="nav-btn">Despesas</button>
+        <button onclick="showSection('reports')" class="nav-btn">Relatórios</button>
+      </div>
+    </nav>
+
+    <main>
+      <!-- Visão Geral -->
+      <section id="overview" class="section active">
+        <h2>Visão Geral</h2>
+        <div class="dashboard">
+          <div class="card">
+            <h3>Total de Participantes</h3>
+            <p id="totalParticipants">0 adultos</p>
+          </div>
+          <div class="card">
+            <h3>Despesa Total</h3>
+            <p id="totalExpense">R$ 0,00</p>
+          </div>
+          <div class="card">
+            <h3>Valor por Adulto</h3>
+            <p id="costPerPerson">R$ 0,00</p>
+          </div>
+          <div class="card">
+            <h3>Valor por Casal</h3>
+            <p id="amountPerCouple">R$ 0,00</p>
+        </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="expensesChart"></canvas>
+        </div>
+      </section>
+
+      <!-- Cadastro de Participantes -->
+      <section id="participants" class="section">
+        <h2>Participantes</h2>
+        <form id="participantForm" class="form">
+          <div class="form-group">
+            <label for="name">Nome:</label>
+            <input type="text" id="name" required>
+          </div>
+          <div class="form-group">
+            <label>Tipo:</label>
+            <select id="type" required>
+              <option value="individual">Individual</option>
+              <option value="casal">Casal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="children">Número de Crianças:</label>
+            <input type="number" id="children" min="0" value="0">
+          </div>
+          <button type="submit" class="btn-primary">Adicionar Participante</button>
+        </form>
+        <div class="participants-list">
+          <h3>Participantes Cadastrados</h3>
+          <table id="participantsTable">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Crianças</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Registro de Despesas -->
+      <section id="expenses" class="section">
+        <h2>Despesas</h2>
+        <form id="expenseForm" class="form">
+          <div class="form-group">
+            <label for="description">Descrição:</label>
+            <input type="text" id="description" required>
+          </div>
+          <div class="form-group">
+            <label for="amount">Valor:</label>
+            <input type="number" id="amount" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="category">Categoria:</label>
+            <select id="category" required>
+              <option value="aluguel">Aluguel</option>
+              <option value="comida">Comida</option>
+              <option value="essenciais">Itens Essenciais</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary">Registrar Despesa</button>
+        </form>
+        <div class="expenses-list">
+          <h3>Despesas Registradas</h3>
+          <table id="expensesTable">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Categoria</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Relatórios -->
+      <section id="reports" class="section">
+        <h2>Relatórios</h2>
+        <div class="reports-container">
+          <div class="report-actions">
+            <button onclick="exportToPDF()" class="btn-secondary">Exportar PDF</button>
+            <button onclick="exportToCSV()" class="btn-secondary">Exportar CSV</button>
+          </div>
+          <div class="summary-table">
+            <h3>Resumo por Categoria</h3>
+            <table id="summaryTable">
+              <thead>
+                <tr>
+                  <th>Categoria</th>
+                  <th>Total</th>
+                  <th>Percentual</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
